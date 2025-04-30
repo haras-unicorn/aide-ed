@@ -1,0 +1,9 @@
+[book]
+authors = ["haras-unicorn <social@haras.anonaddy.me>"]
+language = "hr"
+multilingual = false
+src = "src"
+title = "AideEd korisnička dokumentacija"
+
+[preprocessor.plantuml]
+plantuml-cmd = "plantuml"

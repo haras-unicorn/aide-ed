@@ -1,0 +1,11 @@
+[package]
+name = "aide-ed-lib"
+version = "0.1.0"
+description = "AideEd library"
+authors = ["haras-unicorn <social@haras.anonaddy.me>"]
+license = "MIT"
+readme = "README.md"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.98"

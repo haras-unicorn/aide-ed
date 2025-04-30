@@ -1,0 +1,76 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json
+
+x-ollama-common: &ollama-common
+  image: ollama/ollama:0.6.3
+  restart: always
+  volumes:
+    - ollama_data:/root/.ollama
+  networks:
+    - aide-ed-network
+  healthcheck:
+    test: ["CMD-SHELL", "curl http://localhost:11434 || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 5
+
+services:
+  postgres:
+    image: postgres:17.4
+    restart: always
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+    networks:
+      - aide-ed-network
+    environment:
+      - POSTGRES_DB=aide-ed
+      - POSTGRES_USER=aide-ed
+      - POSTGRES_PASSWORD=aide-ed
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d aide-ed -U aide-ed"]
+      interval: 1m
+      timeout: 10s
+      retries: 10
+
+  keycloak:
+    image: keycloak/keycloak:26.2.2
+    command: start-dev
+    restart: always
+    networks:
+      - aide-ed-network
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  ollama-cpu:
+    <<: *ollama-common
+    profiles: [cpu]
+
+  ollama-cuda:
+    <<: *ollama-common
+    profiles: [cuda]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: cdi
+              capabilities: [gpu]
+              device_ids:
+                - nvidia.com/gpu=all
+
+networks:
+  aide-ed-network:
+    name: aide-ed-network
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: aebr
+
+volumes:
+  postgres_data:
+    driver: local
+  ollama_data:
+    driver: local

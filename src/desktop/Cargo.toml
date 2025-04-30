@@ -1,0 +1,11 @@
+[package]
+name = "aide-ed-desktop"
+version = "0.1.0"
+description = "AideEd desktop"
+authors = ["haras-unicorn <social@haras.anonaddy.me>"]
+license = "MIT"
+readme = "README.md"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.98"
