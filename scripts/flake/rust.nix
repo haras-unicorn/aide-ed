@@ -3,6 +3,11 @@
 let
   mkNaerskLib = pkgs: pkgs.callPackage naersk { };
 
+  nativeBuildInputs = pkgs: [
+    pkgs.pkg-config
+    pkgs.lld
+  ];
+
   buildInputs = pkgs: [
     pkgs.openssl
     pkgs.libiconv
@@ -36,9 +41,7 @@ in
       version = "0.1.0";
       src = self;
 
-      nativeBuildInputs = [
-        pkgs.pkg-config
-      ];
+      nativeBuildInputs = nativeBuildInputs pkgs;
 
       buildInputs = buildInputs pkgs;
 
@@ -52,6 +55,8 @@ in
       shellHook = ''
         export RUST_BACKTRACE="full";
       '';
+
+      nativeBuildInputs = nativeBuildInputs pkgs;
 
       buildInputs = buildInputs pkgs;
 
