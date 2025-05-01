@@ -1,10 +1,11 @@
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dioxus::prelude::*;
-use serde_json::Value;
 use server_fn::codec::Json;
 use std::env;
 use uuid::Uuid;
+
+use crate::models::Subject;
 
 fn establish_connection() -> Result<PgConnection, ConnectionError> {
   let database_url =
@@ -21,7 +22,7 @@ pub struct CreateSubjectArgs {
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn create_subject(
   args: CreateSubjectArgs,
-) -> Result<Value, ServerFnError> {
+) -> Result<Subject, ServerFnError> {
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -40,7 +41,7 @@ pub async fn create_subject(
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
-pub async fn get_subject(subject_id: Uuid) -> Result<Value, ServerFnError> {
+pub async fn get_subject(subject_id: Uuid) -> Result<Subject, ServerFnError> {
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -57,7 +58,7 @@ pub async fn get_subject(subject_id: Uuid) -> Result<Value, ServerFnError> {
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
-pub async fn list_subjects() -> Result<Value, ServerFnError> {
+pub async fn list_subjects() -> Result<Subject, ServerFnError> {
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -79,7 +80,7 @@ pub struct UpdateSubjectArgs {
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn update_subject(
   args: UpdateSubjectArgs,
-) -> Result<Value, ServerFnError> {
+) -> Result<Subject, ServerFnError> {
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 

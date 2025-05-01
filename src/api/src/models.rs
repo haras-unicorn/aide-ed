@@ -1,10 +1,13 @@
 use crate::schema::*;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable, Insertable, Debug, Clone)]
+#[derive(
+  Queryable, Selectable, Insertable, Debug, Clone, Serialize, Deserialize,
+)]
 #[diesel(table_name = changes)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Change {
@@ -21,7 +24,15 @@ pub struct Change {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Associations, Identifiable, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Associations,
+  Identifiable,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = class_courses)]
 #[diesel(belongs_to(Class))]
@@ -34,7 +45,15 @@ pub struct ClassCourse {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = classes)]
 #[diesel(belongs_to(Organization))]
@@ -51,7 +70,15 @@ pub struct Class {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = courses)]
 #[diesel(belongs_to(Subject))]
@@ -64,7 +91,15 @@ pub struct Course {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = guides)]
 #[diesel(belongs_to(Lecture))]
@@ -78,7 +113,15 @@ pub struct Guide {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = issues)]
 #[diesel(belongs_to(Teacher))]
@@ -95,7 +138,15 @@ pub struct Issue {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = lectures)]
 #[diesel(belongs_to(Course))]
@@ -108,7 +159,15 @@ pub struct Lecture {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = messages)]
 #[diesel(belongs_to(Teacher))] // Assuming relation based on teacher_id
@@ -123,7 +182,15 @@ pub struct Message {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = organizations)]
 #[diesel(belongs_to(Organization, foreign_key = organization_id))] // Self-reference needs explicit fk name
@@ -136,7 +203,15 @@ pub struct Organization {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = reviews)]
 #[diesel(belongs_to(Change))]
@@ -152,7 +227,15 @@ pub struct Review {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Associations, Identifiable, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Associations,
+  Identifiable,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = student_classes)]
 #[diesel(belongs_to(Student))]
@@ -165,7 +248,15 @@ pub struct StudentClass {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = students)]
 #[diesel(belongs_to(Organization))]
@@ -176,7 +267,16 @@ pub struct Student {
   pub organization_id: Uuid,
 }
 
-#[derive(Queryable, Selectable, Insertable, Identifiable, Debug, Clone)]
+#[derive(
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
+)]
 #[diesel(table_name = subjects)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Subject {
@@ -186,7 +286,15 @@ pub struct Subject {
 }
 
 #[derive(
-  Queryable, Selectable, Insertable, Identifiable, Associations, Debug, Clone,
+  Queryable,
+  Selectable,
+  Insertable,
+  Identifiable,
+  Associations,
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
 )]
 #[diesel(table_name = teachers)]
 #[diesel(belongs_to(Organization))]

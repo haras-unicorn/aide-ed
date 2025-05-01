@@ -82,6 +82,8 @@ dependencies = [
  "aide-ed-api",
  "aide-ed-lib",
  "dioxus",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
