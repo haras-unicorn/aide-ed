@@ -28,7 +28,7 @@ pub async fn create_subject(
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
   let new_subject = Subject {
-    id: Uuid::new_v8(),
+    id: Uuid::new_v4(),
     title: args.title,
     description: args.description,
   };
