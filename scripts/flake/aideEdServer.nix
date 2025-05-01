@@ -1,9 +1,19 @@
-{ self, pkgs, config, lib, ... }:
+{ self, pkgs, config, lib, unstableNixpkgs, ... }:
 
 {
   seal.defaults.package = "aideEdServer";
   seal.defaults.app = "aideEdServer";
-  integrate.package.package = (self.lib.rust.mkPackage pkgs "web" [ "server" ]);
+  integrate.package.package =
+    let
+      unstablePkgs = import unstableNixpkgs {
+        system = pkgs.system;
+      };
+    in
+    (self.lib.rust.mkPackage pkgs "web" [ "server" ]).overrideAttrs (final: prev: {
+      buildInputs = (prev.buildInputs or [ ]) ++ [
+        unstablePkgs.wasm-bindgen-cli_0_2_100
+      ];
+    });
 
   seal.defaults.nixosModule = "aideEdServer";
   branch.nixosModule.nixosModule =

@@ -1,4 +1,4 @@
-{ self, naersk, lib, ... }:
+{ self, naersk, lib, unstableNixpkgs, ... }:
 
 let
   mkNaerskLib = pkgs: pkgs.callPackage naersk { };
@@ -7,7 +7,6 @@ let
     pkgs.openssl
     pkgs.libiconv
     pkgs.pkg-config
-    pkgs.wasm-bindgen-cli
   ] ++ lib.optionals
     pkgs.stdenv.isLinux
     [
@@ -49,6 +48,11 @@ in
     };
 
   flake.lib.rust.mkDevShell = pkgs:
+    let
+      unstablePkgs = import unstableNixpkgs {
+        system = pkgs.system;
+      };
+    in
     pkgs.mkShell {
       shellHook = ''
         export RUST_BACKTRACE="full";
@@ -66,6 +70,7 @@ in
         rust-analyzer
         cargo-edit
         evcxr
+        unstablePkgs.wasm-bindgen-cli_0_2_100
       ];
     };
 }
