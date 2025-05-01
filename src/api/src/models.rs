@@ -8,6 +8,7 @@ use aide_ed_macro::models;
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Change {
   #[response_field]
+  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -261,9 +262,12 @@ pub struct Issue {
   pub content_id: Uuid,
 
   #[response_field]
+  #[create_args_field]
+  #[update_args_field]
   pub created_at: DateTime<Utc>,
 
   #[response_field]
+  #[create_args_field]
   #[update_args_field]
   pub resolved: Option<bool>,
 }
@@ -321,25 +325,32 @@ pub struct Lecture {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Message {
   #[response_field]
+  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub teacher_id: Uuid,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub parent_table: String,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub parent_id: Uuid,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub content: String,
 
   #[response_field]
+  #[create_args_field]
+  #[update_args_field]
   pub created_at: DateTime<Utc>,
 }
 
@@ -400,14 +411,17 @@ pub struct Organization {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Review {
   #[response_field]
+  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub change_id: Uuid,
 
   #[response_field]
   #[create_args_field]
+  #[update_args_field]
   pub teacher_id: Uuid,
 
   #[response_field]
@@ -421,6 +435,8 @@ pub struct Review {
   pub approved: Option<bool>,
 
   #[response_field]
+  #[create_args_field]
+  #[update_args_field]
   pub created_at: DateTime<Utc>,
 }
 
