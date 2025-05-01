@@ -7,13 +7,10 @@ default:
     @just --choose
 
 dev-server *args:
-    dx serve --package aide-ed-server --port 8081
+    dx serve --package aide-ed-server --addr $env.AIDE_ED_HOST --port $env.AIDE_ED_HTTP_PORT
 
 dev-desktop *args:
-    dx serve --package aide-ed-desktop --port 8081
-
-dev-mobile *args:
-    dx serve --package aide-ed-mobile --port 8081
+    dx serve --package aide-ed-desktop --addr $env.AIDE_ED_HOST --port $env.AIDE_ED_HTTP_PORT
 
 test:
     cd '{{ root }}'; cargo test

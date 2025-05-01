@@ -8,7 +8,7 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-dioxus = { workspace = true, features = ["router", "fullstack"] }
+dioxus = { workspace = true }
 aide-ed-lib = { workspace = true }
 aide-ed-api = { workspace = true }
 aide-ed-ui = { workspace = true }
@@ -20,4 +20,11 @@ wasm-bindgen = "=0.2.100"
 [features]
 default = []
 web = ["dioxus/web"]
-server = ["dioxus/server", "dioxus/liveview", "diesel", "keycloak", "reqwest"]
+server = [
+  "dioxus/server",
+  "dioxus/router",
+  "dioxus/fullstack",
+  "diesel",
+  "keycloak",
+  "reqwest",
+]
