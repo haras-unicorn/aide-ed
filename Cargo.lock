@@ -79,6 +79,7 @@ dependencies = [
  "aide-ed-api",
  "aide-ed-lib",
  "dioxus",
+ "uuid",
 ]
 
 [[package]]

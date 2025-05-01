@@ -1,16 +1,14 @@
-#![deny(unsafe_code)]
-#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
-#![deny(clippy::arithmetic_side_effects)]
-#![deny(clippy::dbg_macro, clippy::print_stdout, clippy::print_stderr)]
-#![deny(clippy::todo)]
-#![deny(clippy::unreachable)]
-#![deny(clippy::allow_attributes_without_reason)]
-
 use dioxus::prelude::*;
-use dioxus_router::components::{Link, Outlet};
 
-mod views;
-use views::*;
+#[component]
+pub fn Navbar(children: Element) -> Element {
+  rsx! {
+      div {
+          id: "navbar",
+          {children}
+      }
+  }
+}
 
 #[derive(Debug, Clone, Routable, PartialEq)]
 enum Route {
@@ -18,12 +16,17 @@ enum Route {
   #[route("/")]
   Index {},
   #[route("/subject/:id")]
-  Subject { id: String },
+  Subject { id: i32 },
   #[route("/subjects")]
   Subjects,
 }
 
-pub fn app() -> Element {
+fn main() {
+  dioxus::launch(App);
+}
+
+#[component]
+fn App() -> Element {
   rsx! {
     Router::<Route> {}
   }
@@ -46,15 +49,5 @@ fn WebNavbar() -> Element {
     }
 
     Outlet::<Route> {}
-  }
-}
-
-#[component]
-pub fn Navbar(children: Element) -> Element {
-  rsx! {
-      div {
-          id: "navbar",
-          {children}
-      }
   }
 }

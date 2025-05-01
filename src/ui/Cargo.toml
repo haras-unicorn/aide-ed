@@ -8,6 +8,7 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-dioxus = { workspace = true }
+dioxus = { workspace = true, features = ["router"] }
+uuid = { version = "1.16.0" }
 aide-ed-api = { workspace = true }
 aide-ed-lib = { workspace = true }
