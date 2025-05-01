@@ -7,5 +7,6 @@
 #![deny(clippy::allow_attributes_without_reason)]
 
 fn main() {
+  dioxus::logger::initialize_default();
   dioxus::LaunchBuilder::web().launch(aide_ed_lib::app);
 }
