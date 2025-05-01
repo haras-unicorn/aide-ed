@@ -2,7 +2,6 @@ use crate::Route;
 use aide_ed_api::fns::subject::list_subjects;
 use dioxus::prelude::*;
 use dioxus_router::components::Link;
-use uuid::Uuid;
 
 #[component]
 pub fn Subjects() -> Element {

@@ -69,6 +69,7 @@ in
         rustfmt
         rust-analyzer
         cargo-edit
+        cargo-expand
         evcxr
         (self.lib.wasmBindgenCli pkgs)
       ];

@@ -10,6 +10,7 @@ edition = "2021"
 [dependencies]
 dioxus = { workspace = true, features = ["fullstack"] }
 aide-ed-lib = { workspace = true }
+aide-ed-macro = { workspace = true }
 diesel = { version = "2.2.10", features = [
   "chrono",
   "postgres",

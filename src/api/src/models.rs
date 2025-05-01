@@ -1,4 +1,5 @@
 use crate::schema::*;
+use aide_ed_macro::generate_response;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -267,6 +268,7 @@ pub struct Student {
   pub organization_id: Uuid,
 }
 
+#[generate_response]
 #[derive(
   Queryable,
   Selectable,
@@ -280,8 +282,13 @@ pub struct Student {
 #[diesel(table_name = subjects)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Subject {
+  #[response_field]
   pub id: Uuid,
+
+  #[response_field]
   pub title: String,
+
+  #[response_field]
   pub description: String,
 }
 

@@ -18,7 +18,7 @@ enum Route {
   #[route("/")]
   Index {},
   #[route("/subject/:id")]
-  Subject { id: Uuid },
+  Subject { id: String },
   #[route("/subjects")]
   Subjects,
 }
