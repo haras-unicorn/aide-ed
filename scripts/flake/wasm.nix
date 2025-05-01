@@ -13,8 +13,8 @@
 
       wasm-bindgen-cli = pkgs.wasm-bindgen-cli.override {
         version = wasmBindgen.version;
-        hash = pkgs.lib.fakeHash;
-        cargoHash = pkgs.lib.fakeHash;
+        hash = "sha256-3RJzK7mkYFrs7C/WkhW9Rr4LdP5ofb2FdYGz1P7Uxog=";
+        cargoHash = "sha256-tD0OY2PounRqsRiFh8Js5nyknQ809ZcHMvCOLrvYHRE=";
       };
     in
     wasm-bindgen-cli;
