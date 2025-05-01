@@ -9,7 +9,9 @@
 extern crate proc_macro;
 
 mod crud;
+mod fns;
 
+use inflector::Inflector;
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
 use syn::{
@@ -114,6 +116,7 @@ pub fn models(attr: TokenStream, item: TokenStream) -> TokenStream {
   let server_feature_name = args.server_feature_name;
 
   let input_struct = parse_macro_input!(item as syn::ItemStruct);
+  let struct_name = &input_struct.ident;
 
   let response_code =
     crud::model_part(&input_struct, "", "Response", "response_field");
@@ -128,28 +131,93 @@ pub fn models(attr: TokenStream, item: TokenStream) -> TokenStream {
     &["response_field", "create_args_field", "update_args_field"],
   );
 
+  let struct_name_str = struct_name.to_string();
+  let table_name_str = struct_name_str.to_snake_case().to_plural();
+  let table_name_ident = format_ident!("{}", table_name_str);
+
+  let pk_ident = format_ident!("id");
+  let pk_type = quote! { uuid::Uuid };
+
+  let create_args_ident = format_ident!("Create{}Args", struct_name_str);
+  let update_args_ident = format_ident!("Update{}Args", struct_name_str);
+  let response_ident = format_ident!("{}Response", struct_name_str);
+  let server_struct_ident = format_ident!("{}", struct_name_str);
+
+  let create_fn_code = fns::generate_create_fn(
+    &input_struct, // Pass original struct to check attributes
+    &table_name_ident,
+    &pk_ident,
+    &pk_type,
+    &create_args_ident,
+    &response_ident,
+    &server_struct_ident,
+  );
+  let get_fn_code = fns::generate_get_fn(
+    &input_struct,
+    &table_name_ident,
+    &pk_ident,
+    &pk_type,
+    &response_ident,
+    &server_struct_ident,
+  );
+  let list_fn_code = fns::generate_list_fn(
+    &input_struct,
+    &table_name_ident,
+    &response_ident,
+    &server_struct_ident,
+  );
+  let update_fn_code = fns::generate_update_fn(
+    &input_struct,
+    &table_name_ident,
+    &pk_ident,
+    &pk_type,
+    &update_args_ident,
+    &response_ident,
+    &server_struct_ident,
+  );
+  let delete_fn_code = fns::generate_delete_fn(
+    &input_struct,
+    &table_name_ident,
+    &pk_ident,
+    &pk_type,
+  );
+
+  // --- Combine Output ---
   let combined_output = quote! {
-    #[cfg(feature = #server_feature_name)]
-    pub mod #server_module_ident {
-      use crate::schema::*;
-      use diesel::prelude::*;
-      use serde::{Deserialize, Serialize};
-      use uuid::Uuid;
-      use chrono::{DateTime, Utc};
+      pub mod #api_module_ident {
+          use serde::{Deserialize, Serialize};
+          use uuid::Uuid;
+          use chrono::{DateTime, Utc};
+          use serde_json::Value;
 
-      #cleaned_input_struct
-    }
+          #response_code
+          #create_args_code
+          #update_args_code
+      }
 
-    pub mod #api_module_ident {
-      use uuid::Uuid;
-      use chrono::{DateTime, Utc};
+      #[cfg(feature = #server_feature_name)]
+      pub mod #server_module_ident {
+          use crate::schema::*;
+          use diesel::prelude::*;
+          use server_fn::codec::Json;
+          use dioxus::prelude::*;
+          use serde::{Deserialize, Serialize};
+          use uuid::Uuid;
+          use chrono::{DateTime, Utc};
+          use serde_json::Value;
+          use crate::models::#api_module_ident::*;
 
-      #response_code
+          #cleaned_input_struct
 
-      #create_args_code
+          #create_fn_code
+          #get_fn_code
+          #list_fn_code
+          #update_fn_code
+          #delete_fn_code
+      }
 
-      #update_args_code
-    }
+      pub use #api_module_ident::*;
+      pub use #server_module_ident::*;
   };
 
   TokenStream::from(combined_output)

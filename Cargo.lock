@@ -3,6 +3,16 @@
 version = 3
 
 [[package]]
+name = "Inflector"
+version = "0.11.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe438c63458706e03479442743baae6c88256498e6431708f6dfc520a26515d3"
+dependencies = [
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -57,6 +67,7 @@ version = "0.1.0"
 name = "aide-ed-macro"
 version = "0.1.0"
 dependencies = [
+ "Inflector",
  "proc-macro2",
  "quote",
  "syn 2.0.101",

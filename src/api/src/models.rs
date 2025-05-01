@@ -46,9 +46,13 @@ pub struct Change {
   pub proposed_changes: serde_json::Value,
 
   #[response_field]
+  #[create_args_field]
+  #[update_args_field]
   pub created_at: DateTime<Utc>,
 
   #[response_field]
+  #[create_args_field]
+  #[update_args_field]
   pub merged_at: Option<DateTime<Utc>>,
 }
 
