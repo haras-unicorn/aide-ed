@@ -17,6 +17,7 @@
         # postgres
         usql
         postgresql_17
+        diesel-cli
 
         # keycloak
         keycloak
