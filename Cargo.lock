@@ -31,7 +31,6 @@ name = "aide-ed-desktop"
 version = "0.1.0"
 dependencies = [
  "aide-ed-lib",
- "anyhow",
  "dioxus",
 ]
 
@@ -48,7 +47,6 @@ name = "aide-ed-mobile"
 version = "0.1.0"
 dependencies = [
  "aide-ed-lib",
- "anyhow",
  "dioxus",
 ]
 
@@ -66,7 +64,6 @@ name = "aide-ed-web"
 version = "0.1.0"
 dependencies = [
  "aide-ed-lib",
- "anyhow",
  "dioxus",
 ]
 

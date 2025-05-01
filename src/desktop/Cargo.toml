@@ -8,6 +8,5 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.98"
 aide-ed-lib = { path = "../lib" }
 dioxus = { version = "0.6.3", features = ["desktop"] }
