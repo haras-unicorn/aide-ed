@@ -59,7 +59,8 @@ pub struct Change {
 
 #[models(
   api_module = "class_course_api",
-  server_module = "class_course_server"
+  server_module = "class_course_server",
+  join = true
 )]
 #[derive(
   Queryable,
@@ -442,7 +443,8 @@ pub struct Review {
 
 #[models(
   api_module = "student_class_api",
-  server_module = "student_class_server"
+  server_module = "student_class_server",
+  join = true
 )]
 #[derive(
   Queryable,

@@ -30,11 +30,10 @@ fn get_target_fields<'a>(
 pub fn generate_create_fn(
   original_struct: &ItemStruct,
   table_name_ident: &Ident,
-  pk_ident: &Ident,
-  pk_type: &TokenStream2,
   create_args_ident: &Ident,
   response_ident: &Ident,
   server_struct_ident: &Ident,
+  is_join_table: bool,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("create_{}", struct_name_str.to_lowercase());
@@ -50,14 +49,17 @@ pub fn generate_create_fn(
     .iter()
     .map(|(ident, _)| quote! { #ident: result.#ident });
 
-  let has_id_field = original_struct
-    .fields
-    .iter()
-    .any(|f| f.ident.as_ref().map_or(false, |i| i == pk_ident));
-  let id_assignment = if has_id_field {
+  let pk_ident = format_ident!("id");
+  let pk_type = quote! { uuid::Uuid };
+  let id_assignment = if !is_join_table
+    && original_struct
+      .fields
+      .iter()
+      .any(|f| f.ident.as_ref().map_or(false, |i| i == &pk_ident))
+  {
     quote! { #pk_ident: #pk_type::new_v4(), }
   } else {
-    quote! {}
+    quote! {} // No ID generation for join tables or if no 'id' field
   };
 
   quote! {
@@ -206,23 +208,20 @@ pub fn generate_update_fn(
   original_struct: &ItemStruct,
   table_name_ident: &Ident,
   pk_ident: &Ident,
-  _pk_type: &TokenStream2,
+  pk_type: &TokenStream2,
   update_args_ident: &Ident,
   response_ident: &Ident,
   server_struct_ident: &Ident,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("update_{}", struct_name_str.to_lowercase());
+  let input_pk_arg_name = pk_ident.clone();
   let error_entity_name =
-    format!("{} with id {}", struct_name_str, "{args.#pk_ident}");
+    format!("{} with id {}", struct_name_str, "{#input_pk_arg_name}");
 
   let update_fields = get_target_fields(original_struct, "update_args_field");
-  let set_clauses = update_fields.iter().filter_map(|(ident, _)| {
-    if *ident != pk_ident {
-      Some(quote! { #table_name_ident::#ident.eq(args.#ident.clone()) }) // Clone args if needed
-    } else {
-      None
-    }
+  let set_clauses = update_fields.iter().map(|(ident, _)| {
+    quote! { #table_name_ident::#ident.eq(args.#ident.clone()) }
   });
 
   let response_fields = get_target_fields(original_struct, "response_field");
@@ -233,6 +232,7 @@ pub fn generate_update_fn(
   quote! {
       #[server(prefix = "/api", input = Json, output = Json)]
       pub async fn #fn_name(
+          #input_pk_arg_name: #pk_type,
           args: #update_args_ident,
       ) -> Result<#response_ident, ServerFnError> {
           use crate::schema::*;
@@ -245,12 +245,11 @@ pub fn generate_update_fn(
               ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
           })?;
 
-          let target = #table_name_ident::table.find(args.#pk_ident);
+          let target = #table_name_ident::table.find(#input_pk_arg_name);
 
           let result = diesel::update(target)
               .set((
                   #(#set_clauses),*
-                  // Add updated_at logic here if needed
               ))
               .get_result::<#server_struct_ident>(&mut conn)
               .map_err(|e| match e {
@@ -274,39 +273,81 @@ pub fn generate_update_fn(
 pub fn generate_delete_fn(
   original_struct: &ItemStruct,
   table_name_ident: &Ident,
-  _pk_ident: &Ident,
-  pk_type: &TokenStream2,
+  create_args_ident: &Ident,
+  is_join_table: bool,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("delete_{}", struct_name_str.to_lowercase());
-  let input_arg_name = format_ident!("{}_id", struct_name_str.to_lowercase());
-  let error_entity_name =
-    format!("{} with id {}", struct_name_str, "{#input_arg_name}");
 
-  quote! {
-      #[server(prefix = "/api", input = Json, output = Json)]
-      pub async fn #fn_name(#input_arg_name: #pk_type) -> Result<usize, ServerFnError> {
-          use crate::schema::*;
-          use crate::schema::#table_name_ident::dsl::*;
-          use diesel::prelude::*;
-          use crate::establish_connection;
+  if is_join_table {
+    let key_fields = get_target_fields(original_struct, "create_args_field");
+    let key_field_names = key_fields.iter().map(|(ident, _)| ident);
+    let key_tuple = key_fields.iter().map(|(ident, _)| quote! { args.#ident });
+    let error_entity_name = format!(
+      "{} with keys {:?}",
+      struct_name_str,
+      key_field_names
+        .clone()
+        .map(|i| i.to_string())
+        .collect::<Vec<_>>()
+    );
 
-          let mut conn = establish_connection().map_err(|e| {
-              ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
-          })?;
+    quote! {
+        #[server(prefix = "/api", input = Json, output = Json)]
+        pub async fn #fn_name(args: #create_args_ident) -> Result<usize, server_fn::ServerFnError> {
+            use crate::schema::*;
+            use crate::schema::#table_name_ident::dsl::*;
+            use diesel::prelude::*;
+            use crate::establish_connection;
 
-          diesel::delete(#table_name_ident.find(#input_arg_name))
-              .execute(&mut conn)
-              .map_err(|e| match e {
-                  diesel::result::Error::NotFound => ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
-                      "{} not found for deletion",
-                      #error_entity_name
-                  )),
-                  _ => ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
-                      "Error deleting {}: {}",
-                      #error_entity_name, e
-                  )),
-              })
-      }
+            let mut conn = establish_connection().map_err(|e| {
+                server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(
+                    format!("Database connection error: {}", e))
+            })?;
+
+            let target = #table_name_ident.find((#(#key_tuple),*));
+
+            diesel::delete(target)
+                .execute(&mut conn)
+                .map_err(|e| match e {
+                    _ => server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+                        "Error deleting {}: {}",
+                        #error_entity_name, e
+                    )),
+                })
+        }
+    }
+  } else {
+    let pk_type = quote! { uuid::Uuid };
+    let input_arg_name = format_ident!("{}_id", struct_name_str.to_lowercase());
+    let error_entity_name =
+      format!("{} with id {}", struct_name_str, "{#input_arg_name}");
+
+    quote! {
+        #[server(prefix = "/api", input = Json, output = Json)]
+        pub async fn #fn_name(#input_arg_name: #pk_type) -> Result<usize, ServerFnError::<server_fn::error::NoCustomError>> {
+            use crate::schema::*;
+            use crate::schema::#table_name_ident::dsl::*;
+            use diesel::prelude::*;
+            use crate::establish_connection;
+
+            let mut conn = establish_connection().map_err(|e| {
+                server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
+            })?;
+
+            diesel::delete(#table_name_ident.find(#input_arg_name))
+                .execute(&mut conn)
+                .map_err(|e| match e {
+                    diesel::result::Error::NotFound => server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+                        "{} not found for deletion",
+                        #error_entity_name
+                    )),
+                    _ => server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+                        "Error deleting {}: {}",
+                        #error_entity_name, e
+                    )),
+                })
+        }
+    }
   }
 }
