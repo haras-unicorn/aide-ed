@@ -33,6 +33,7 @@ in
         pkgs.pkg-config
         pkgs.openssl
         pkgs.webkitgtk_4_1
+        pkgs.xdotool
       ];
 
       packages = with pkgs; [

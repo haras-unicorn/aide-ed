@@ -1,7 +1,7 @@
 [package]
-name = "aide-ed-server"
+name = "aide-ed-web"
 version = "0.1.0"
-description = "AideEd server"
+description = "AideEd web"
 authors = ["haras-unicorn <social@haras.anonaddy.me>"]
 license = "MIT"
 readme = "README.md"

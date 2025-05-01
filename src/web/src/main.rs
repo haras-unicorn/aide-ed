@@ -7,7 +7,7 @@
 #![deny(clippy::allow_attributes_without_reason)]
 
 fn main() -> anyhow::Result<()> {
-  dioxus::prelude::launch(aide_ed_lib::app);
+  dioxus::LaunchBuilder::web().launch(aide_ed_lib::app);
 
   Ok(())
 }
