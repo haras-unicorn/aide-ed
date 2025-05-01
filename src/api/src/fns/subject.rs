@@ -3,18 +3,9 @@ use server_fn::codec::Json;
 use std::env;
 use uuid::Uuid;
 
-#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
-pub struct CreateSubjectArgs {
-  pub title: String,
-  pub description: String,
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
-pub struct SubjectResponse {
-  pub id: Uuid,
-  pub title: String,
-  pub description: String,
-}
+pub use crate::models::CreateSubjectArgs;
+pub use crate::models::SubjectResponse;
+pub use crate::models::UpdateSubjectArgs;
 
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn create_subject(
@@ -113,13 +104,6 @@ pub async fn list_subjects() -> Result<Vec<SubjectResponse>, ServerFnError> {
       })
       .collect::<Vec<_>>(),
   );
-}
-
-#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
-pub struct UpdateSubjectArgs {
-  pub id: Uuid,
-  pub title: String,
-  pub description: String,
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
