@@ -7,7 +7,7 @@ default:
     @just --choose
 
 dev *args:
-    cd '{{ root }}/src/server'; cargo run -- {{ args }}
+    dx serve --package aide-ed-server --port 8081
 
 test:
     cd '{{ root }}'; cargo test
