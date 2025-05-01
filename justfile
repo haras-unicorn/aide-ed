@@ -6,8 +6,14 @@ root := absolute_path('')
 default:
     @just --choose
 
-dev *args:
+dev-server *args:
     dx serve --package aide-ed-server --port 8081
+
+dev-desktop *args:
+    dx serve --package aide-ed-desktop --port 8081
+
+dev-mobile *args:
+    dx serve --package aide-ed-mobile --port 8081
 
 test:
     cd '{{ root }}'; cargo test
