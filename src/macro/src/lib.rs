@@ -14,8 +14,8 @@ extern crate proc_macro;
 mod crud;
 
 #[proc_macro_attribute]
-pub fn generate_response(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn response(attr: TokenStream, item: TokenStream) -> TokenStream {
   let input_struct = parse_macro_input!(item as syn::ItemStruct);
 
-  crud::response::implement_generate_response(attr, input_struct)
+  crud::response::implement_response(attr, input_struct)
 }

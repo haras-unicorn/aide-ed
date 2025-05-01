@@ -268,7 +268,7 @@ pub struct Student {
   pub organization_id: Uuid,
 }
 
-#[generate_response]
+#[response]
 #[derive(
   Queryable,
   Selectable,

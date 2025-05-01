@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{FieldsNamed, Ident, ItemStruct};
 
-pub fn implement_generate_response(
+pub fn implement_response(
   _attr: TokenStream,
   mut input_struct: ItemStruct,
 ) -> TokenStream {
