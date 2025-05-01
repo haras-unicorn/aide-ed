@@ -16,7 +16,7 @@
 
         $dockerCompose up
 
-        AIDE_ED_HOST="localhost";
+        AIDE_ED_HOST="127.0.0.1";
         export AIDE_ED_HOST
         echo "AIDE_ED_HOST is set to $AIDE_ED_HOST"
 
