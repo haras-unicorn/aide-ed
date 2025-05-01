@@ -23,6 +23,8 @@ inlayHints.closureReturnTypeHints.enable = "with_block"
 inlayHints.discriminantHints.enable = "fieldless"
 inlayHints.lifetimeElisionHints.enable = "skip_trivial"
 inlayHints.typeHints.hideClosureInitialization = false
+cargo.features = "all"
+check.features = "all"
 
 [[language]]
 name = "nix"
