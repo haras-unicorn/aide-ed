@@ -1,11 +1,18 @@
-{ rumor, ... }:
+{ rumor, unstableNixpkgs, ... }:
+
+# TODO: pin dioxus-cli to the same version as in Cargo.lock
 
 {
   flake.lib.tools.mkDevShell = pkgs:
+    let
+      unstablePkgs = import unstableNixpkgs {
+        system = pkgs.system;
+      };
+    in
     pkgs.mkShell {
       packages = with pkgs; [
         # client
-        dioxus-cli
+        unstablePkgs.dioxus-cli
 
         # postgres
         usql

@@ -133,7 +133,8 @@
         "nixpkgs": "nixpkgs_2",
         "perch": "perch",
         "rumor": "rumor",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "unstableNixpkgs": "unstableNixpkgs"
       }
     },
     "rumor": {
@@ -192,6 +193,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "unstableNixpkgs": {
+      "locked": {
+        "lastModified": 1745930157,
+        "narHash": "sha256-y3h3NLnzRSiUkYpnfvnS669zWZLoqqI6NprtLQ+5dck=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "46e634be05ce9dc6d4db8e664515ba10b78151ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
         "type": "github"
       }
     },
