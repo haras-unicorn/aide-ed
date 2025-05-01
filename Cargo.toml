@@ -7,6 +7,7 @@ dioxus = { version = "0.6.3" }
 aide-ed-ui = { path = "src/ui" }
 aide-ed-api = { path = "src/api" }
 aide-ed-lib = { path = "src/lib" }
+aide-ed-macro = { path = "src/macro" }
 
 [profile.wasm-dev]
 inherits = "dev"
