@@ -3,15 +3,15 @@ use server_fn::codec::Json;
 use std::env;
 use uuid::Uuid;
 
-pub use crate::models::CreateSubjectArgs;
-pub use crate::models::SubjectResponse;
-pub use crate::models::UpdateSubjectArgs;
+pub use crate::models::subject_api::CreateSubjectArgs;
+pub use crate::models::subject_api::SubjectResponse;
+pub use crate::models::subject_api::UpdateSubjectArgs;
 
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn create_subject(
   args: CreateSubjectArgs,
 ) -> Result<SubjectResponse, ServerFnError> {
-  use crate::models::Subject;
+  use crate::models::subject_server::*;
   use crate::schema::*;
   use diesel::prelude::*;
 
@@ -46,7 +46,7 @@ pub async fn create_subject(
 pub async fn get_subject(
   subject_id: Uuid,
 ) -> Result<SubjectResponse, ServerFnError> {
-  use crate::models::Subject;
+  use crate::models::subject_server::*;
   use crate::schema::*;
   use diesel::prelude::*;
 
@@ -76,7 +76,7 @@ pub async fn get_subject(
 
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn list_subjects() -> Result<Vec<SubjectResponse>, ServerFnError> {
-  use crate::models::Subject;
+  use crate::models::subject_server::*;
   use crate::schema::*;
   use diesel::prelude::*;
 
@@ -110,7 +110,7 @@ pub async fn list_subjects() -> Result<Vec<SubjectResponse>, ServerFnError> {
 pub async fn update_subject(
   args: UpdateSubjectArgs,
 ) -> Result<SubjectResponse, ServerFnError> {
-  use crate::models::Subject;
+  use crate::models::subject_server::*;
   use crate::schema::*;
   use diesel::prelude::*;
 
