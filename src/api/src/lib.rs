@@ -7,5 +7,7 @@
 #![deny(clippy::allow_attributes_without_reason)]
 
 pub mod fns;
+#[cfg(feature = "server")]
 pub mod models;
+#[cfg(feature = "server")]
 pub mod schema;

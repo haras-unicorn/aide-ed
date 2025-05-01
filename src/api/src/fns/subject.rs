@@ -1,17 +1,7 @@
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
 use dioxus::prelude::*;
 use server_fn::codec::Json;
 use std::env;
 use uuid::Uuid;
-
-use crate::models::Subject;
-
-fn establish_connection() -> Result<PgConnection, ConnectionError> {
-  let database_url =
-    env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-  PgConnection::establish(&database_url)
-}
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct CreateSubjectArgs {
@@ -19,10 +9,21 @@ pub struct CreateSubjectArgs {
   pub description: String,
 }
 
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+pub struct SubjectResponse {
+  pub id: Uuid,
+  pub title: String,
+  pub description: String,
+}
+
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn create_subject(
   args: CreateSubjectArgs,
-) -> Result<Subject, ServerFnError> {
+) -> Result<SubjectResponse, ServerFnError> {
+  use crate::models::Subject;
+  use crate::schema::*;
+  use diesel::prelude::*;
+
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -41,7 +42,12 @@ pub async fn create_subject(
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
-pub async fn get_subject(subject_id: Uuid) -> Result<Subject, ServerFnError> {
+pub async fn get_subject(
+  subject_id: Uuid,
+) -> Result<SubjectResponse, ServerFnError> {
+  use crate::schema::*;
+  use diesel::prelude::*;
+
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -58,7 +64,11 @@ pub async fn get_subject(subject_id: Uuid) -> Result<Subject, ServerFnError> {
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
-pub async fn list_subjects() -> Result<Subject, ServerFnError> {
+pub async fn list_subjects() -> Result<SubjectResponse, ServerFnError> {
+  use crate::models::Subject;
+  use crate::schema::*;
+  use diesel::prelude::*;
+
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -80,7 +90,10 @@ pub struct UpdateSubjectArgs {
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn update_subject(
   args: UpdateSubjectArgs,
-) -> Result<Subject, ServerFnError> {
+) -> Result<SubjectResponse, ServerFnError> {
+  use crate::schema::*;
+  use diesel::prelude::*;
+
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -101,6 +114,9 @@ pub async fn update_subject(
 
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn delete_subject(subject_id: Uuid) -> Result<usize, ServerFnError> {
+  use crate::schema::*;
+  use diesel::prelude::*;
+
   let mut conn = establish_connection()
     .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
 
@@ -113,4 +129,14 @@ pub async fn delete_subject(subject_id: Uuid) -> Result<usize, ServerFnError> {
       )),
       _ => ServerFnError::ServerError(format!("Error deleting subject: {}", e)),
     })
+}
+
+#[cfg(feature = "server")]
+fn establish_connection(
+) -> Result<diesel::pg::PgConnection, diesel::prelude::ConnectionError> {
+  use diesel::prelude::*;
+
+  let database_url =
+    env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+  PgConnection::establish(&database_url)
 }

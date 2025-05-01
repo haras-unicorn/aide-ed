@@ -12,9 +12,6 @@ dioxus = { workspace = true }
 aide-ed-lib = { workspace = true }
 aide-ed-api = { workspace = true }
 aide-ed-ui = { workspace = true }
-diesel = { version = "2.2.10", features = ["postgres"], optional = true }
-keycloak = { version = "26.2.0", optional = true }
-reqwest = { version = "0.12.15", optional = true }
 wasm-bindgen = "=0.2.100"
 
 [features]
@@ -24,7 +21,5 @@ server = [
   "dioxus/server",
   "dioxus/router",
   "dioxus/fullstack",
-  "diesel",
-  "keycloak",
-  "reqwest",
+  "aide-ed-api/server",
 ]
