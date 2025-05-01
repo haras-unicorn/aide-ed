@@ -6,9 +6,12 @@
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
 
-fn main() {
-  #[cfg(any(feature = "server", feature = "web"))]
-  {
-    dioxus::launch(aide_ed_ui::app);
+use dioxus::prelude::*;
+
+pub fn app() -> Element {
+  rsx! {
+    p {
+      "Hello, world!"
+    }
   }
 }

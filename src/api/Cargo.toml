@@ -1,10 +1,12 @@
 [package]
-name = "aide-ed-lib"
+name = "aide-ed-api"
 version = "0.1.0"
-description = "AideEd library"
+description = "AideEd API"
 authors = ["haras-unicorn <social@haras.anonaddy.me>"]
 license = "MIT"
 readme = "README.md"
 edition = "2021"
 
 [dependencies]
+dioxus = { workspace = true, features = ["fullstack"] }
+aide-ed-lib = { workspace = true }

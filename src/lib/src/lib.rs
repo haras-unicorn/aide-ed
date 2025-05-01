@@ -5,13 +5,3 @@
 #![deny(clippy::todo)]
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
-
-use dioxus::prelude::*;
-
-pub fn app() -> Element {
-  rsx! {
-    p {
-      "Hello, world!"
-    }
-  }
-}

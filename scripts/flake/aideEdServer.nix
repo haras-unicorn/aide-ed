@@ -3,7 +3,7 @@
 {
   seal.defaults.package = "aideEdServer";
   seal.defaults.app = "aideEdServer";
-  integrate.package.package = self.lib.rust.mkPackage pkgs "server";
+  integrate.package.package = (self.lib.rust.mkPackage pkgs "web" [ "server" ]);
 
   seal.defaults.nixosModule = "aideEdServer";
   branch.nixosModule.nixosModule =

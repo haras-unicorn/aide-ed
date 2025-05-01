@@ -1,3 +1,3 @@
 # AideEd web
 
-The web client for AideEd.
+The web server and client for AideEd.

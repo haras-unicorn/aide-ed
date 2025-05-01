@@ -1,0 +1,13 @@
+[package]
+name = "aide-ed-ui"
+version = "0.1.0"
+description = "AideEd UI components"
+authors = ["haras-unicorn <social@haras.anonaddy.me>"]
+license = "MIT"
+readme = "README.md"
+edition = "2021"
+
+[dependencies]
+dioxus = { workspace = true }
+aide-ed-api = { workspace = true }
+aide-ed-lib = { workspace = true }

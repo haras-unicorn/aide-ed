@@ -5,7 +5,3 @@
 #![deny(clippy::todo)]
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
-
-fn main() {
-  dioxus::launch(aide_ed_lib::app);
-}

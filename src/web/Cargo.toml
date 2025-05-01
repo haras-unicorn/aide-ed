@@ -1,12 +1,23 @@
 [package]
-name = "aide-ed-web"
+name = "aide-ed-server"
 version = "0.1.0"
-description = "AideEd web"
+description = "AideEd server"
 authors = ["haras-unicorn <social@haras.anonaddy.me>"]
 license = "MIT"
 readme = "README.md"
 edition = "2021"
 
 [dependencies]
-aide-ed-lib = { path = "../lib" }
-dioxus = { version = "0.6.3", features = ["web"] }
+dioxus = { workspace = true, features = ["router", "fullstack", "liveview"] }
+aide-ed-lib = { workspace = true }
+aide-ed-api = { workspace = true }
+aide-ed-ui = { workspace = true }
+anyhow = "1.0.98"
+diesel = { version = "2.2.10", features = ["postgres"] }
+keycloak = "26.2.0"
+reqwest = "0.12.15"
+
+[features]
+default = []
+web = ["dioxus/web"]
+server = ["dioxus/server"]

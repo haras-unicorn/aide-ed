@@ -7,5 +7,8 @@
 #![deny(clippy::allow_attributes_without_reason)]
 
 fn main() {
-  dioxus::prelude::launch(aide_ed_lib::app);
+  #[cfg(any(feature = "server", feature = "mobile"))]
+  {
+    dioxus::launch(aide_ed_ui::app);
+  }
 }

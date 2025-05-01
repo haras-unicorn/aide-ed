@@ -8,5 +8,11 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
-aide-ed-lib = { path = "../lib" }
-dioxus = { version = "0.6.3", features = ["desktop"] }
+dioxus = { workspace = true, features = ["router"] }
+aide-ed-ui = { workspace = true }
+aide-ed-lib = { workspace = true }
+
+[features]
+default = []
+desktop = ["dioxus/desktop"]
+server = ["dioxus/server"]
