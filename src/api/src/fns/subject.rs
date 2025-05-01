@@ -24,8 +24,9 @@ pub async fn create_subject(
   use crate::schema::*;
   use diesel::prelude::*;
 
-  let mut conn = establish_connection()
-    .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+  let mut conn = establish_connection().map_err(|e| {
+    ServerFnError::<server_fn::error::NoCustomError>::ServerError(e.to_string())
+  })?;
 
   let new_subject = Subject {
     id: Uuid::new_v4(),
@@ -33,51 +34,85 @@ pub async fn create_subject(
     description: args.description,
   };
 
-  diesel::insert_into(subjects::table)
+  let response = diesel::insert_into(subjects::table)
     .values(&new_subject)
-    .get_result(&mut conn)
+    .get_result::<Subject>(&mut conn)
     .map_err(|e| {
-      ServerFnError::ServerError(format!("Error creating subject: {}", e))
-    })
+      ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+        "Error creating subject: {}",
+        e
+      ))
+    })?;
+
+  return Ok(SubjectResponse {
+    id: response.id,
+    title: response.title,
+    description: response.description,
+  });
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
 pub async fn get_subject(
   subject_id: Uuid,
 ) -> Result<SubjectResponse, ServerFnError> {
+  use crate::models::Subject;
   use crate::schema::*;
   use diesel::prelude::*;
 
-  let mut conn = establish_connection()
-    .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+  let mut conn = establish_connection().map_err(|e| {
+    ServerFnError::<server_fn::error::NoCustomError>::ServerError(e.to_string())
+  })?;
 
-  subjects::table
+  let response = subjects::table
     .find(subject_id)
-    .first(&mut conn)
+    .first::<Subject>(&mut conn)
     .map_err(|e| match e {
       diesel::result::Error::NotFound => ServerFnError::ServerError(format!(
         "Subject with id {} not found",
         subject_id
       )),
-      _ => ServerFnError::ServerError(format!("Error getting subject: {}", e)),
-    })
+      _ => ServerFnError::<server_fn::error::NoCustomError>::ServerError(
+        format!("Error getting subject: {}", e),
+      ),
+    })?;
+
+  return Ok(SubjectResponse {
+    id: response.id,
+    title: response.title,
+    description: response.description,
+  });
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
-pub async fn list_subjects() -> Result<SubjectResponse, ServerFnError> {
+pub async fn list_subjects() -> Result<Vec<SubjectResponse>, ServerFnError> {
   use crate::models::Subject;
   use crate::schema::*;
   use diesel::prelude::*;
 
-  let mut conn = establish_connection()
-    .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+  let mut conn = establish_connection().map_err(|e| {
+    ServerFnError::<server_fn::error::NoCustomError>::ServerError(e.to_string())
+  })?;
 
-  subjects::table
+  let response = subjects::table
     .select(Subject::as_select())
     .load(&mut conn)
     .map_err(|e| {
-      ServerFnError::ServerError(format!("Error listing subjects: {}", e))
-    })
+      ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+        "Error listing subjects: {}",
+        e
+      ))
+    })?;
+
+  return Ok(
+    response
+      .into_iter()
+      .map(|response| SubjectResponse {
+        id: response.id,
+        title: response.title,
+        description: response.description,
+      })
+      .collect::<Vec<_>>(),
+  );
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
@@ -91,25 +126,35 @@ pub struct UpdateSubjectArgs {
 pub async fn update_subject(
   args: UpdateSubjectArgs,
 ) -> Result<SubjectResponse, ServerFnError> {
+  use crate::models::Subject;
   use crate::schema::*;
   use diesel::prelude::*;
 
-  let mut conn = establish_connection()
-    .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+  let mut conn = establish_connection().map_err(|e| {
+    ServerFnError::<server_fn::error::NoCustomError>::ServerError(e.to_string())
+  })?;
 
-  diesel::update(subjects::table.find(args.id))
+  let response = diesel::update(subjects::table.find(args.id))
     .set((
       subjects::title.eq(args.title),
       subjects::description.eq(args.description),
     ))
-    .get_result(&mut conn)
+    .get_result::<Subject>(&mut conn)
     .map_err(|e| match e {
       diesel::result::Error::NotFound => ServerFnError::ServerError(format!(
         "Subject with id {} not found for update",
         args.id
       )),
-      _ => ServerFnError::ServerError(format!("Error updating subject: {}", e)),
-    })
+      _ => ServerFnError::<server_fn::error::NoCustomError>::ServerError(
+        format!("Error updating subject: {}", e),
+      ),
+    })?;
+
+  return Ok(SubjectResponse {
+    id: response.id,
+    title: response.title,
+    description: response.description,
+  });
 }
 
 #[server(prefix = "/api", input = Json, output = Json)]
@@ -117,8 +162,9 @@ pub async fn delete_subject(subject_id: Uuid) -> Result<usize, ServerFnError> {
   use crate::schema::*;
   use diesel::prelude::*;
 
-  let mut conn = establish_connection()
-    .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+  let mut conn = establish_connection().map_err(|e| {
+    ServerFnError::<server_fn::error::NoCustomError>::ServerError(e.to_string())
+  })?;
 
   diesel::delete(subjects::table.find(subject_id))
     .execute(&mut conn)
@@ -127,7 +173,9 @@ pub async fn delete_subject(subject_id: Uuid) -> Result<usize, ServerFnError> {
         "Subject with id {} not found for deletion",
         subject_id
       )),
-      _ => ServerFnError::ServerError(format!("Error deleting subject: {}", e)),
+      _ => ServerFnError::<server_fn::error::NoCustomError>::ServerError(
+        format!("Error deleting subject: {}", e),
+      ),
     })
 }
 
