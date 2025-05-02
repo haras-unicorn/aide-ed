@@ -1,3 +1,4 @@
+use inflector::Inflector;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use syn::{FieldsNamed, Ident, ItemStruct, Type};
@@ -9,8 +10,9 @@ pub fn generate_list_fn(
   server_struct_ident: &Ident,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("list_{}s", struct_name_str.to_lowercase()); // Pluralize fn name
-  let error_entity_name = format!("{}s", struct_name_str); // Pluralize entity name
+  let fn_name =
+    format_ident!("list_{}", struct_name_str.to_snake_case().to_plural());
+  let error_entity_name = format!("{}", struct_name_str.to_plural());
 
   let response_fields = get_target_fields(original_struct, "response_field");
   let response_field_assigns = response_fields
@@ -68,8 +70,8 @@ pub fn generate_create_fn(
   is_join_table: bool,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("create_{}", struct_name_str.to_lowercase());
-  let error_entity_name = format!("{} {}", struct_name_str, "{e}"); // For error messages
+  let fn_name = format_ident!("create_{}", struct_name_str.to_snake_case());
+  let error_entity_name = format!("{} {}", struct_name_str, "{e}");
 
   let create_fields = get_target_fields(original_struct, "create_args_field");
   let create_field_assigns = create_fields
@@ -147,7 +149,7 @@ pub fn generate_get_fn(
   server_struct_ident: &Ident,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("get_{}", struct_name_str.to_lowercase());
+  let fn_name = format_ident!("get_{}", struct_name_str.to_snake_case());
   let input_arg_name = format_ident!("get_{}", pk_ident.clone());
   let error_entity_name =
     format!("{} with id {}", struct_name_str, "{#input_arg_name}");
@@ -210,7 +212,7 @@ pub fn generate_update_fn(
   server_struct_ident: &Ident,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("update_{}", struct_name_str.to_lowercase());
+  let fn_name = format_ident!("update_{}", struct_name_str.to_snake_case());
   let input_pk_arg_name = format_ident!("update_{}", pk_ident.clone());
   let error_entity_name =
     format!("{} with id {}", struct_name_str, "{#input_pk_arg_name}");
@@ -282,7 +284,7 @@ pub fn generate_delete_fn(
   is_join_table: bool,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("delete_{}", struct_name_str.to_lowercase());
+  let fn_name = format_ident!("delete_{}", struct_name_str.to_snake_case());
 
   if is_join_table {
     let key_fields = get_target_fields(original_struct, "create_args_field");
