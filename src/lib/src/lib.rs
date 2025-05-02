@@ -12,7 +12,7 @@ use tracing::Level;
 pub use tracing;
 
 pub fn init() -> anyhow::Result<()> {
-  let level = Level::DEBUG;
+  let level = Level::INFO;
 
   #[cfg(target_arch = "wasm32")]
   {
@@ -44,7 +44,7 @@ pub fn init() -> anyhow::Result<()> {
     if !dioxus::cli_config::is_cli_enabled() {
       set_global_default(builder.finish().into())?;
     } else {
-      set_global_default(builder.finish().into())?;
+      set_global_default(builder.without_time().finish().into())?;
     }
   }
 
