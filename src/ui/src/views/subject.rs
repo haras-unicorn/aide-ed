@@ -1,11 +1,6 @@
 use std::str::FromStr;
 
-use aide_ed_api::fns::subject::create_subject;
-use aide_ed_api::fns::subject::delete_subject;
-use aide_ed_api::fns::subject::get_subject;
-use aide_ed_api::fns::subject::update_subject;
-use aide_ed_api::fns::subject::CreateSubjectArgs;
-use aide_ed_api::fns::subject::UpdateSubjectArgs;
+use aide_ed_api::*;
 use dioxus::prelude::*;
 
 use crate::Route;

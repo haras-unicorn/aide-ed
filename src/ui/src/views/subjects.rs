@@ -1,5 +1,5 @@
 use crate::Route;
-use aide_ed_api::fns::subject::list_subjects;
+use aide_ed_api::*;
 use dioxus::prelude::*;
 use dioxus_router::components::Link;
 

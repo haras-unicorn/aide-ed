@@ -30,8 +30,15 @@ pub fn generate_list_fn(
               ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
           })?;
 
-          let results = #table_name_ident
-              .select(#server_struct_ident::as_select())
+          let query = #table_name_ident
+              .select(#server_struct_ident::as_select());
+
+          dioxus::logger::tracing::info!(
+            "{}",
+            diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+          );
+
+          let results = query
               .load::<#server_struct_ident>(&mut conn)
               .map_err(|e| {
                   ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
@@ -107,8 +114,15 @@ pub fn generate_create_fn(
               #(#create_field_assigns),*
           };
 
-          let result = diesel::insert_into(#table_name_ident)
-              .values(&new_record)
+          let query =  diesel::insert_into(#table_name_ident)
+              .values(&new_record);
+
+          dioxus::logger::tracing::info!(
+            "{}",
+            diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+          );
+
+          let result = query
               .get_result::<#server_struct_ident>(&mut conn)
               .map_err(|e| {
                   ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
@@ -134,7 +148,7 @@ pub fn generate_get_fn(
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("get_{}", struct_name_str.to_lowercase());
-  let input_arg_name = pk_ident.clone();
+  let input_arg_name = format_ident!("get_{}", pk_ident.clone());
   let error_entity_name =
     format!("{} with id {}", struct_name_str, "{#input_arg_name}");
 
@@ -158,8 +172,15 @@ pub fn generate_get_fn(
               ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
           })?;
 
-          let result = #table_name_ident
-              .find(#input_arg_name)
+          let query = #table_name_ident
+              .find(#input_arg_name);
+
+          dioxus::logger::tracing::info!(
+            "{}",
+            diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+          );
+
+          let result = query
               .first::<#server_struct_ident>(&mut conn)
               .map_err(|e| match e {
                   diesel::result::Error::NotFound => ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
@@ -190,7 +211,7 @@ pub fn generate_update_fn(
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("update_{}", struct_name_str.to_lowercase());
-  let input_pk_arg_name = pk_ident.clone();
+  let input_pk_arg_name = format_ident!("update_{}", pk_ident.clone());
   let error_entity_name =
     format!("{} with id {}", struct_name_str, "{#input_pk_arg_name}");
 
@@ -222,10 +243,17 @@ pub fn generate_update_fn(
 
           let target = #table_name_ident::table.find(#input_pk_arg_name);
 
-          let result = diesel::update(target)
+          let query = diesel::update(target)
               .set((
                   #(#set_clauses),*
-              ))
+              ));
+
+          dioxus::logger::tracing::info!(
+            "{}",
+            diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+          );
+
+          let result = query
               .get_result::<#server_struct_ident>(&mut conn)
               .map_err(|e| match e {
                   diesel::result::Error::NotFound => ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
@@ -284,7 +312,14 @@ pub fn generate_delete_fn(
 
             let target = #table_name_ident.find((#(#key_tuple),*));
 
-            diesel::delete(target)
+            let query  = diesel::delete(target);
+
+            dioxus::logger::tracing::info!(
+              "{}",
+              diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+            );
+
+            query
                 .execute(&mut conn)
                 .map_err(|e| match e {
                     _ => server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
@@ -297,7 +332,7 @@ pub fn generate_delete_fn(
   } else {
     let error_entity_name =
       format!("{} with id {}", struct_name_str, "{#input_arg_name}");
-    let input_arg_name = pk_ident.clone();
+    let input_arg_name = format_ident!("delete_{}", pk_ident.clone());
 
     quote! {
         #[server(prefix = "/api", input = Json, output = Json)]
@@ -311,7 +346,15 @@ pub fn generate_delete_fn(
                 server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
             })?;
 
-            diesel::delete(#table_name_ident.find(#input_arg_name))
+            let query =
+                diesel::delete(#table_name_ident.find(#input_arg_name));
+
+            dioxus::logger::tracing::info!(
+              "{}",
+              diesel::query_builder::debug_query::<diesel::pg::Pg, _>(&query).to_string()
+            );
+
+            query
                 .execute(&mut conn)
                 .map_err(|e| match e {
                     diesel::result::Error::NotFound => server_fn::ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(

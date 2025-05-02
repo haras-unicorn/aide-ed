@@ -6,6 +6,8 @@
 #![deny(clippy::unreachable)]
 #![deny(clippy::allow_attributes_without_reason)]
 
+// TODO: fix env filter
+
 use tracing::dispatcher::set_global_default;
 use tracing::Level;
 
@@ -27,7 +29,7 @@ pub fn init() -> anyhow::Result<()> {
 
     console_error_panic_hook::set_once();
 
-    set_global_default(reg.into());
+    set_global_default(reg.into())?;
   }
 
   #[cfg(not(target_arch = "wasm32"))]
