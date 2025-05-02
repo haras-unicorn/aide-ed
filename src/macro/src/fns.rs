@@ -2,29 +2,54 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use syn::{FieldsNamed, Ident, ItemStruct, Type};
 
-fn get_target_fields<'a>(
-  original_struct: &'a ItemStruct,
-  target_attr_name: &str,
-) -> Vec<(&'a Ident, &'a Type)> {
-  let fields = match &original_struct.fields {
-    syn::Fields::Named(FieldsNamed { named, .. }) => named,
-    _ => return Vec::new(), // Or panic, depending on desired strictness
-  };
+pub fn generate_list_fn(
+  original_struct: &ItemStruct,
+  table_name_ident: &Ident,
+  response_ident: &Ident,
+  server_struct_ident: &Ident,
+) -> TokenStream2 {
+  let struct_name_str = original_struct.ident.to_string();
+  let fn_name = format_ident!("list_{}s", struct_name_str.to_lowercase()); // Pluralize fn name
+  let error_entity_name = format!("{}s", struct_name_str); // Pluralize entity name
 
-  fields
+  let response_fields = get_target_fields(original_struct, "response_field");
+  let response_field_assigns = response_fields
     .iter()
-    .filter_map(|field| {
-      let is_target = field
-        .attrs
-        .iter()
-        .any(|attr| attr.path().is_ident(target_attr_name));
-      if is_target {
-        field.ident.as_ref().map(|ident| (ident, &field.ty))
-      } else {
-        None
+    .map(|(ident, _)| quote! { #ident: item.#ident });
+
+  quote! {
+      #[server(prefix = "/api", input = Json, output = Json)]
+      pub async fn #fn_name() -> Result<Vec<#response_ident>, ServerFnError> {
+          use crate::schema::*;
+          use crate::schema::#table_name_ident::dsl::*;
+          use diesel::prelude::*;
+          use super::#server_struct_ident;
+          use crate::establish_connection;
+
+          let mut conn = establish_connection().map_err(|e| {
+              ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
+          })?;
+
+          let results = #table_name_ident
+              .select(#server_struct_ident::as_select()) // Use the server struct here
+              .load::<#server_struct_ident>(&mut conn)
+              .map_err(|e| {
+                  ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
+                      "Error listing {}: {}",
+                      #error_entity_name, e
+                  ))
+              })?;
+
+          Ok(
+              results
+                  .into_iter()
+                  .map(|item| #response_ident {
+                      #(#response_field_assigns),*
+                  })
+                  .collect::<Vec<_>>(),
+          )
       }
-    })
-    .collect()
+  }
 }
 
 pub fn generate_create_fn(
@@ -102,14 +127,14 @@ pub fn generate_create_fn(
 pub fn generate_get_fn(
   original_struct: &ItemStruct,
   table_name_ident: &Ident,
-  _pk_ident: &Ident,
+  pk_ident: &Ident,
   pk_type: &TokenStream2,
   response_ident: &Ident,
   server_struct_ident: &Ident,
 ) -> TokenStream2 {
   let struct_name_str = original_struct.ident.to_string();
   let fn_name = format_ident!("get_{}", struct_name_str.to_lowercase());
-  let input_arg_name = format_ident!("{}_id", struct_name_str.to_lowercase());
+  let input_arg_name = pk_ident.clone();
   let error_entity_name =
     format!("{} with id {}", struct_name_str, "{#input_arg_name}");
 
@@ -150,56 +175,6 @@ pub fn generate_get_fn(
           Ok(#response_ident {
               #(#response_field_assigns),*
           })
-      }
-  }
-}
-
-pub fn generate_list_fn(
-  original_struct: &ItemStruct,
-  table_name_ident: &Ident,
-  response_ident: &Ident,
-  server_struct_ident: &Ident,
-) -> TokenStream2 {
-  let struct_name_str = original_struct.ident.to_string();
-  let fn_name = format_ident!("list_{}s", struct_name_str.to_lowercase()); // Pluralize fn name
-  let error_entity_name = format!("{}s", struct_name_str); // Pluralize entity name
-
-  let response_fields = get_target_fields(original_struct, "response_field");
-  let response_field_assigns = response_fields
-    .iter()
-    .map(|(ident, _)| quote! { #ident: item.#ident });
-
-  quote! {
-      #[server(prefix = "/api", input = Json, output = Json)]
-      pub async fn #fn_name() -> Result<Vec<#response_ident>, ServerFnError> {
-          use crate::schema::*;
-          use crate::schema::#table_name_ident::dsl::*;
-          use diesel::prelude::*;
-          use super::#server_struct_ident;
-          use crate::establish_connection;
-
-          let mut conn = establish_connection().map_err(|e| {
-              ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!("Database connection error: {}", e))
-          })?;
-
-          let results = #table_name_ident
-              .select(#server_struct_ident::as_select()) // Use the server struct here
-              .load::<#server_struct_ident>(&mut conn)
-              .map_err(|e| {
-                  ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
-                      "Error listing {}: {}",
-                      #error_entity_name, e
-                  ))
-              })?;
-
-          Ok(
-              results
-                  .into_iter()
-                  .map(|item| #response_ident {
-                      #(#response_field_assigns),*
-                  })
-                  .collect::<Vec<_>>(),
-          )
       }
   }
 }
@@ -273,6 +248,8 @@ pub fn generate_update_fn(
 pub fn generate_delete_fn(
   original_struct: &ItemStruct,
   table_name_ident: &Ident,
+  pk_ident: &Ident,
+  pk_type: &TokenStream2,
   create_args_ident: &Ident,
   is_join_table: bool,
 ) -> TokenStream2 {
@@ -318,10 +295,9 @@ pub fn generate_delete_fn(
         }
     }
   } else {
-    let pk_type = quote! { uuid::Uuid };
-    let input_arg_name = format_ident!("{}_id", struct_name_str.to_lowercase());
     let error_entity_name =
       format!("{} with id {}", struct_name_str, "{#input_arg_name}");
+    let input_arg_name = pk_ident.clone();
 
     quote! {
         #[server(prefix = "/api", input = Json, output = Json)]
@@ -350,4 +326,29 @@ pub fn generate_delete_fn(
         }
     }
   }
+}
+
+fn get_target_fields<'a>(
+  original_struct: &'a ItemStruct,
+  target_attr_name: &str,
+) -> Vec<(&'a Ident, &'a Type)> {
+  let fields = match &original_struct.fields {
+    syn::Fields::Named(FieldsNamed { named, .. }) => named,
+    _ => return Vec::new(), // Or panic, depending on desired strictness
+  };
+
+  fields
+    .iter()
+    .filter_map(|field| {
+      let is_target = field
+        .attrs
+        .iter()
+        .any(|attr| attr.path().is_ident(target_attr_name));
+      if is_target {
+        field.ident.as_ref().map(|ident| (ident, &field.ty))
+      } else {
+        None
+      }
+    })
+    .collect()
 }

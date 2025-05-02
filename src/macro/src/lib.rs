@@ -203,12 +203,18 @@ pub fn models(attr: TokenStream, item: TokenStream) -> TokenStream {
     quote! {}
   };
 
-  let delete_fn_code = fns::generate_delete_fn(
-    &input_struct,
-    &table_name_ident,
-    &create_args_ident,
-    args.join,
-  );
+  let delete_fn_code = {
+    let pk_ident = format_ident!("id");
+    let pk_type = quote! { uuid::Uuid };
+    fns::generate_delete_fn(
+      &input_struct,
+      &table_name_ident,
+      &pk_ident,
+      &pk_type,
+      &create_args_ident,
+      args.join,
+    )
+  };
 
   let combined_output = quote! {
       pub mod #api_module_ident {
@@ -222,10 +228,12 @@ pub fn models(attr: TokenStream, item: TokenStream) -> TokenStream {
           #update_args_code
       }
 
-      #[cfg(feature = #server_feature_name)]
       pub mod #server_module_ident {
+          #[cfg(feature = #server_feature_name)]
           use crate::schema::*;
+          #[cfg(feature = #server_feature_name)]
           use diesel::prelude::*;
+
           use server_fn::codec::Json;
           use dioxus::prelude::*;
           use serde::{Deserialize, Serialize};
@@ -234,6 +242,7 @@ pub fn models(attr: TokenStream, item: TokenStream) -> TokenStream {
           use serde_json::Value;
           use crate::models::#api_module_ident::*;
 
+          #[cfg(feature = #server_feature_name)]
           #cleaned_input_struct
 
           #create_fn_code

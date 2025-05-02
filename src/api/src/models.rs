@@ -8,7 +8,6 @@ use aide_ed_macro::models;
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Change {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -106,7 +105,6 @@ pub struct ClassCourse {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Class {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -157,7 +155,6 @@ pub struct Class {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Course {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -193,7 +190,6 @@ pub struct Course {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Guide {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -234,7 +230,6 @@ pub struct Guide {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Issue {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -290,7 +285,6 @@ pub struct Issue {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Lecture {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -326,7 +320,6 @@ pub struct Lecture {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Message {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -375,7 +368,6 @@ pub struct Message {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Organization {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -412,7 +404,6 @@ pub struct Organization {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Review {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -489,7 +480,6 @@ pub struct StudentClass {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Student {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -518,7 +508,6 @@ pub struct Student {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Subject {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]
@@ -549,7 +538,6 @@ pub struct Subject {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Teacher {
   #[response_field]
-  #[update_args_field]
   pub id: Uuid,
 
   #[response_field]

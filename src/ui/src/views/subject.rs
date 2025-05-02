@@ -19,13 +19,14 @@ pub fn Subject(id: String) -> Element {
 
   let nav = navigator();
 
+  let resource_id = id.clone();
   let resource = use_resource(move || {
     let mut feedback = feedback.clone();
     let mut title = title.clone();
     let mut description = description.clone();
-    let id = id.clone();
+    let resource_id = resource_id.clone();
     async move {
-      let id = match uuid::Uuid::from_str(&id) {
+      let id = match uuid::Uuid::from_str(&resource_id) {
         Ok(id) => id,
         Err(e) => {
           feedback.set(e.to_string());
@@ -48,7 +49,7 @@ pub fn Subject(id: String) -> Element {
 
   rsx! {
       div { id: "subject", class: "p-4 space-y-4",
-          h1 { class: "text-xl font-bold", "Subject" }
+          h1 { class: "text-xl font-bold", "Subject {id}" }
 
           if !feedback().is_empty() {
               p { class: "text-green-600", "{feedback}" }
@@ -98,12 +99,11 @@ pub fn Subject(id: String) -> Element {
 
                           spawn(async move {
                               let args = UpdateSubjectArgs {
-                                  id: subject.id,
                                   title: title.read().clone(),
                                   description: desc.read().clone(),
                               };
 
-                              match update_subject(args).await {
+                              match update_subject(subject.id, args).await {
                                   Ok(updated_subject) => {
                                       title.set(String::new());
                                       desc.set(String::new());
