@@ -8,3 +8,19 @@ readme = "README.md"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.98"
+dioxus = { workspace = true }
+tracing = "0.1.41"
+tracing-log = "0.2.0"
+tracing-subscriber = { features = [
+  "registry",
+  "std",
+  "env-filter",
+], version = "0.3.19" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+tracing-wasm = "0.2.1"
+console_error_panic_hook = "0.1.7"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tracing-subscriber = { version = "0.3.19", features = ["fmt"] }

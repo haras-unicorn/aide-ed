@@ -9,6 +9,7 @@
 fn main() {
   #[cfg(any(feature = "server", feature = "web"))]
   {
+    aide_ed_lib::init().unwrap();
     dioxus::launch(aide_ed_ui::app);
   }
 }

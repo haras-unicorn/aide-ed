@@ -31,7 +31,7 @@ pub fn generate_list_fn(
           })?;
 
           let results = #table_name_ident
-              .select(#server_struct_ident::as_select()) // Use the server struct here
+              .select(#server_struct_ident::as_select())
               .load::<#server_struct_ident>(&mut conn)
               .map_err(|e| {
                   ServerFnError::<server_fn::error::NoCustomError>::ServerError(format!(
