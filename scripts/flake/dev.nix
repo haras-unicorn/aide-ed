@@ -6,9 +6,8 @@
 {
   seal.defaults.devShell = "dev";
   integrate.devShell = {
-    nixpkgs.config = {
-      allowUnfree = true;
-    };
+    nixpkgs.config = { allowUnfree = true; };
+    nixpkgs.overlays = self.lib.rust.overlays;
 
     devShell = pkgs.mkShell {
       shellHook = ''

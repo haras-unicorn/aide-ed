@@ -15,6 +15,8 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
     naersk.url = "github:nix-community/naersk";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
     rumor.url = "github:altibiz/rumor/refs/tags/1.2.0";
     rumor.inputs.nixpkgs.follows = "nixpkgs";

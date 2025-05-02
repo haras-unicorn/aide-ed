@@ -3,6 +3,7 @@
 {
   seal.defaults.package = "aideEdServer";
   seal.defaults.app = "aideEdServer";
+  integrate.package.nixpkgs.overlays = self.lib.rust.overlays;
   integrate.package.package =
     (self.lib.rust.mkPackage pkgs "web" [ "server" ]).overrideAttrs (final: prev: {
       buildInputs = (prev.buildInputs or [ ]) ++ [

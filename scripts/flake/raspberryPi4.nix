@@ -67,6 +67,7 @@ in
 
   integrate.nixosConfiguration = {
     systems = [ "aarch64-linux" ];
+    nixpkgs.overlays = self.lib.rust.overlays;
 
     nixosConfiguration = {
       nixpkgs.overlays = [

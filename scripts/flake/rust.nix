@@ -1,7 +1,10 @@
-{ self, naersk, lib, ... }:
+{ self, naersk, lib, rust-overlay, ... }:
 
 let
-  mkNaerskLib = pkgs: pkgs.callPackage naersk { };
+  mkNaerskLib = pkgs: pkgs.callPackage naersk {
+    cargo = pkgs.rust-naersk;
+    rustc = pkgs.rust-naersk;
+  };
 
   nativeBuildInputs = pkgs: [
     pkgs.pkg-config
@@ -31,6 +34,23 @@ let
     ]);
 in
 {
+  flake.lib.rust.overlays = [
+    (import rust-overlay)
+    (final: prev: {
+      rust-naersk = prev.rust-bin.selectLatestNightlyWith
+        (toolchain: toolchain.default.override {
+          extensions = [
+            "clippy"
+            "rustfmt"
+            "rust-analyzer"
+          ];
+          targets = [
+            "wasm32-unknown-unknown"
+          ];
+        });
+    })
+  ];
+
   flake.lib.rust.mkPackage = pkgs: crate: features:
     let
       naerskLib = mkNaerskLib pkgs;
@@ -54,6 +74,7 @@ in
     pkgs.mkShell {
       shellHook = ''
         export RUST_BACKTRACE="full";
+        export RUSTFLAGS="-Z macro-backtrace";
       '';
 
       nativeBuildInputs = nativeBuildInputs pkgs;
@@ -63,11 +84,7 @@ in
       packages = with pkgs; [
         llvmPackages.clangNoLibcxx
         lldb
-        rustc
-        cargo
-        clippy
-        rustfmt
-        rust-analyzer
+        rust-naersk
         cargo-edit
         cargo-expand
         evcxr

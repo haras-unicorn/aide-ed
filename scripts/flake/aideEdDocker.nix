@@ -4,6 +4,7 @@ let
   package = self.packages.${pkgs.system}.aideEdServer;
 in
 {
+  integrate.package.nixpkgs.overlays = self.lib.rust.overlays;
   integrate.package.package = pkgs.dockerTools.buildImage {
     name = "aide-ed";
     tag = "latest";
