@@ -25,7 +25,7 @@ pub(crate) fn establish_connection(
 
 use paste::paste;
 
-macro_rules! define_crud_exports {
+macro_rules! export_crud_for {
   ($lower:ident, $capital:ident) => {
     paste! {
         pub use crate::models::[<$lower _api>]::[<Create $capital Args>];
@@ -38,6 +38,25 @@ macro_rules! define_crud_exports {
         pub use crate::models::[<$lower _server>]::[<update_ $lower>];
     }
   };
+  ($lower:ident, $capital:ident, join) => {
+    paste! {
+        pub use crate::models::[<$lower _api>]::[<Create $capital Args>];
+        pub use crate::models::[<$lower _api>]::[<$capital Response>];
+    }
+  };
 }
 
-define_crud_exports!(subject, Subject);
+export_crud_for!(subject, Subject);
+export_crud_for!(change, Change);
+export_crud_for!(class_course, ClassCourse, join);
+export_crud_for!(class, Class);
+export_crud_for!(course, Course);
+export_crud_for!(guide, Guide);
+export_crud_for!(issue, Issue);
+export_crud_for!(lecture, Lecture);
+export_crud_for!(message, Message);
+export_crud_for!(organization, Organization);
+export_crud_for!(review, Review);
+export_crud_for!(student_class, StudentClass, join);
+export_crud_for!(student, Student);
+export_crud_for!(teacher, Teacher);
